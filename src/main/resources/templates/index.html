@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity3">
+	<head>
+		<title>Hello World!</title>
+		
+		<script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+		<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+		<script src="/static/layoutTemplate.js?v=1"></script>
+	</head>
+	<body>
+		<div style="width:100%;">
+			<div style="float:left; width:17%; height:800px; background-color:#76d276;">
+				<p>Menu</p>
+			</div>
+			<div style="float:left; width:83%; height:800px; background-color:#7686d2;">
+				<p>Content</p>
+				<div style="margin:10px; width:95%; height:700px; background-color:#ffffff;" id="contentsArea"></div>
+			</div> 
+		</div>
+		
+		<script>
+			var a = new LayoutTemplate();
+			a.setTargetId('contentsArea');
+			a.setContentArray([{
+				title: '1cont',
+				data: {}
+			},
+			{
+				title: '2cont',
+				data: {}
+			},
+			{
+				title: '3cont',
+				data: {}
+			},
+			{
+				title: '4cont',
+				data: {}
+			}]);
+			a.draw();
+		</script>
+	</body>
+</html>
