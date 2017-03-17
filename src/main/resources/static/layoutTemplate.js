@@ -1,103 +1,249 @@
 (function(){
 }());
 
-var LayoutTemplate = function(divId) {
+var LayoutTemplate = function() {
 	
-	var setContent = function() {
+	/* ********************************* default ******************************** */
+	/*
+	┌────target(div)─────────────────────────────────────────────────────────────────
+	│ ┌────real area(div)──  ┌────view area(div)──  ┌────customize area(div)──────────
+	│ │ customizeButton      │ viewButton           │ ┌─layout(div)─  ┌─content(div)───
+	│ │                      │                      │ │               │ insertButton
+	│ │                      │                      │ │               │ 
+	 */
+	
+	// real area dom
+	var $customizeButton = $('<button>').attr({type: 'button', id: 'customizeButton'})
+	                                    .html('CUSTOMIZE MODE');
+	
+	var $realArea = $('<div>').attr({id : 'realArea'})
+	                          .css({float: 'left', width: '100%', height: '100%'})
+	                          .append($customizeButton);
+	
+	// view area dom
+	var $viewButton = $('<button>').attr({type: 'button', id: 'viewButton'})
+	                               .html('VIEW MODE');
+	
+	var $viewArea = $('<div>').attr({id : 'viewArea'})
+	                          .css({float: 'left', width: '60%', height: '100%', display : 'none'})
+	                          .append($viewButton);
+	
+	// customize area dom
+	var $layoutArea = $('<div>').attr({id : 'layoutArea'})
+	                            .css({float : 'left', border : 'solid 1px black', width: '49%', height : '100%', display: 'none'})
+	                            .append($('<div>').html('레이아웃'));
+	
+	var $insertButton = $('<button>').attr({type: 'button', id: 'insertbutton'})
+	                                 .html(' << ');
+	
+	var $dataArea = $('<div>').attr({id : 'dataArea'})
+	                          .css({float : 'left', border : 'solid 1px black', width: '49%', height : '100%', display: 'none'})
+	                          .append($('<div>').html('컨텐츠'))
+	                          .append($insertButton);
+	
+	var $customizeArea = $('<div>').css({float: 'left', width: '40%', height: '100%', disalay: 'none'})
+	                               .append($layoutArea)
+	                               .append($dataArea);
+	
+	// customize area event bind
+	$customizeArea.find('#insertbutton').on('click', function(){
+		var $targetLayout = $viewArea.find('div[class*=on]');
+		var $targetContent = $dataArea.find('li[class*=on]');
 		
-	};
-	
-	// variable
-	var $setterButton = $('<button>').attr({type: 'button', id: 'setterButton'})
-	                                 .html('SETTER');
-	
-	var $saveButton = $('<button>').attr({type: 'button', id: 'saveButton'})
-	                               .css({display : 'none'})
-	                               .html('SAVE');
-	
-	var $left = $('<div>').css({float: 'left', width: '100%', height: '100%'})
-	                      .append($setterButton)
-	                      .append($saveButton);
-	
-	$left.find('#setterButton').on('click', function() {
-		$setterButton.hide();
-		$saveButton.show();
-		$right.show();
-		$left.css({width: '80%'});
-		
-		$layout.show();
-	}).end().find('#saveButton').on('click', function(){
-		$setterButton.show();
-		$saveButton.hide();
-		$right.hide();
-		$left.css({width: '100%'});
-		
-		$layout.hide();
-		$content.hide();
+		if ($targetLayout.length > 0 && $targetContent.length > 0) {
+			var $div = $('<div>').html($targetContent.data('data').title)
+			                     .append($('<button>').attr({type : 'button'}).html('X').on('click', function() {addContentData($(this).parent().data('data')); $(this).parent().remove();}))
+			                     .data('data', $targetContent.data('data'));
+			$targetLayout.append($div);
+			
+			$targetContent.remove();
+		}
 	});
 	
-	var $layout = $('<div>').css({display: 'none'})
-	                        .append($('<a>').attr({href: '#', onclick: 'return false;'}).css({display: 'inline-block', width: '100px', height: '20px', border: 'solid 1px black'}).html('레이아웃'))
-	                        .append($('<a>').attr({href: '#', onclick: 'return false;', id: 'contentButton'}).css({display: 'inline-block', width: '100px', height: '20px', 'background-color': 'gray'}).html('컨텐츠'));
-	
-	var $leftButton = $('<button>').attr({type: 'button'})
-	                               .html(' << ')
-	                               .on('click', setContent);
-	
-	var $content = $('<div>').css({display: 'none'})
-	                         .append($('<a>').attr({href: '#', onclick: 'return false;', id: 'layoutButton'}).css({display: 'inline-block', width: '100px', height: '20px', 'background-color': 'gray'}).html('레이아웃'))
-	                         .append($('<a>').attr({href: '#', onclick: 'return false;'}).css({display: 'inline-block', width: '100px', height: '20px', border: 'solid 1px black'}).html('컨텐츠'))
-	                         .append('<br>')
-	                         .append($leftButton);
-	
-	var $right = $('<div>').css({float: 'left', width: '20%', height: '100%', disalay: 'none'})
-	                       .append($layout)
-	                       .append($content);
-	
-	$right.find('#contentButton').on('click', function(){
-		$layout.hide();
-		$content.show();
-	}).end().find('#layoutButton').on('click', function(){
-		$layout.show();
-		$content.hide();
+	// real area event bind
+	$realArea.find('#customizeButton').on('click', function() {
+		// 뷰, 사용자정의 영역 컨트롤
+		$customizeArea.show();
+		$layoutArea.show();
+		$dataArea.show();
+		$viewArea.show();
+		$realArea.hide();
 	});
 	
-	// function
-	var drawSetArea = function() {
-		var $ul = $('<ul>');
-		for (var i = 0; i < contentArray.length; i++) {
-			$ul.append($('<li>').html(contentArray[i].title));
+	// view area event bind
+	$viewArea.find('#viewButton').on('click', function(){
+		// 리얼영역 리셋
+		$realArea.find('div').remove();
+		
+		// 뷰, 사용자정의 영역 컨트롤
+		$customizeArea.hide();
+		$viewArea.hide();
+		$realArea.show();
+
+		// 사용자정의 데이터 저장
+		saveCustomizeData();
+		
+		// 사용자정의 데이터 저장
+		if (saveFunction !== null) {
+			saveFunction.call();
 		}
 		
-		$ul.find('li').on('click', function() {
-			if ($(this).attr('id') === 'on') {
-				$(this).removeAttr('id')
-				       .css({'background-color' : ''});
+		// 사용자정의 데이터 후처리
+		if (afterSaveFunction !== null) {
+			afterSaveFunction.call();
+		}
+	});
+	
+	/* ********************************* function ******************************** */
+	
+	// 레이아웃 데이터를 그린다.
+	var drawLayoutData = function() {
+		if (layoutArray.length < 1) {
+			return false;
+		} 
+		
+		var $layoutUl = $('<ul>');
+		for (var i = 0; i < layoutArray.length; i++) {
+			$layoutUl.append($('<li>').html(layoutArray[i])
+			                          .attr({'data-layout-id' : layoutArray[i]}) // 데이터 가시성을 위해 속성으로 추가
+			                );
+		}
+		$layoutArea.append($layoutUl);
+		
+		$layoutUl.find('li').on('click', function() {
+			if ($(this).hasClass('on')) {
+				$(this).removeClass('on').css({'background-color' : ''});
 			} else {
-				$ul.find('li').removeAttr('id')
-				              .css({'background-color' : ''});
-				$(this).attr('id', 'on')
-				       .css({'background-color' : 'yellow'});
+				$layoutUl.find('li').removeClass('on').css({'background-color' : ''});
+				
+				$(this).addClass('on').css({'background-color' : 'yellow'});
+				
+				applyLayout($(this).data('layoutId'));
 			}
 		});
+	};
+	
+	// 레이아웃 div id로 레이아웃 dom을 찾아 view영역에 적용한다. 
+	var applyLayout = function(id) {
+		resetViewArea();
+		resetDataArea();
 		
-		$ul.appendTo($content);
+		var $layoutDom = $('#layoutTemplate > #' +id).clone().show().appendTo($viewArea);
 		
-		$('#' + targetId).append($left)
-		                 .append($right);
+		$layoutDom.find('div[id^=section]').sortable();
+		
+		$layoutDom.find('div[id^=section]').on('click', function() {
+			if ($(this).hasClass('on')) {
+				$(this).removeClass('on').css({'background-color' : ''});
+			} else {
+				$layoutDom.find('div[id^=section]').removeClass('on').css({'background-color' : ''});
+				
+				$(this).addClass('on').css({'background-color' : '#babcfb'})
+			}
+		});
+	};
+	
+	// 컨텐츠 데이터를 그린다.
+	var drawConetentData = function() {
+		if (contentArray.length < 1) {
+			return false;
+		} 
+		
+		var $contentUl = $('<ul>');
+		for (var i = 0; i < contentArray.length; i++) {
+			$contentUl.append($('<li>').html(contentArray[i].title)
+			                           .data('data', contentArray[i]) // json 데이터(데이터를 보려면 string으로 변환해서 속성으로 추가하면 됨)
+			                 );
+		}
+		$dataArea.append($contentUl);
+		
+		$contentUl.on('click', 'li', function() {
+			if ($(this).hasClass('on')) {
+				$(this).removeClass('on').css({'background-color' : ''});
+			} else {
+				$contentUl.find('li').removeClass('on').css({'background-color' : ''});
+				
+				$(this).addClass('on').css({'background-color' : 'yellow'});
+			}
+		});
+	};
+	
+	// 컨텐츠 데이터를 추가한다.
+	var addContentData = function(data) {
+		$dataArea.find('ul').append($('<li>').html(data.title).data('data', data));
+	};
+	
+	// view영역을 초기화 한다.
+	var resetViewArea = function() {
+		$viewArea.find('div[id^=layoutStyle]').remove();
 	}
 	
-	// process
+	// data영역을 초기화 한다.
+	var resetDataArea = function() {
+		$dataArea.find('ul').remove();
+		drawConetentData();
+	}
+	
+	// 사용자정의 데이터 저장
+	var saveCustomizeData = function() {
+		var layoutSection = [];
+		$viewArea.find('div[id^=section]').each(function(){
+			var contentList = [];
+			$(this).find('div').each(function(){
+				contentList.push($(this).data('data'));
+			});
+			
+			layoutSection.push({sectionId : $(this).attr('id'), contentList : contentList});
+		});
+		
+		layoutTemplateInformation = {
+				targetId : targetId,
+				layout : {
+					styleId : $viewArea.find('div[id^=layoutStyle]').attr('id'),
+					section : layoutSection
+				}
+		};
+		
+		console.log(JSON.stringify(layoutTemplateInformation));
+	};
+	
+	var drawLayoutTemplate = function() {
+		drawLayoutData();
+		drawConetentData();
+		
+		$('#' + targetId).append($realArea)
+		                 .append($viewArea)
+		                 .append($customizeArea);
+	}
+	
+	/* ********************************* process ******************************** */
+	
+	// variable
 	var targetId = null;
 	var layoutArray = [];
 	var contentArray = [];
+	var saveFunction = null;
+	var afterSaveFunction = function() {
+		var layoutData = layoutTemplateInformation.layout;
+		
+		var $layoutDom = $('#layoutTemplate > #' +layoutData.styleId).clone();
+		
+		var sectionArray = layoutData.section;
+		for (var i = 0; i < sectionArray.length; i++) {
+			var $section = $layoutDom.find('#' + sectionArray[i].sectionId)
+			
+			var contentArray = sectionArray[i].contentList;
+			for (var j = 0; j < contentArray.length; j ++) {
+				var $div = $('<div>').append($('<div>').html(contentArray[j].title))
+				                     .append($('<iframe></iframe>').attr({src : contentArray[j].data.url}))
+				                     .appendTo($section);
+			}
+		}
+		
+		$layoutDom.appendTo($('#contentsArea > #realArea')).show();
+	};
 	
-	if (targetId) {
-		targetId = divId;
-		//alert(true);
-	} else {
-		//alert(false);
-	}
+	var layoutTemplateInformation = {};
 	
 	this.setTargetId = function(divId) {
 		targetId = divId;
@@ -111,12 +257,24 @@ var LayoutTemplate = function(divId) {
 		contentArray = data;
 	};
 	
-	this.showData = function() {
-		//alert(this.targetId);
+	this.setSave = function(func) {
+		if (typeof func === 'function') {
+			saveFunction = func;
+		}
+	};
+	
+	this.setAfterSave = function(func) {
+		if (typeof func === 'function') {
+			afterSaveFunction = func;
+		}
+	};
+	
+	this.getLayoutTemplateData = function() {
+		return layoutTemplateInformation;
 	};
 	
 	this.draw = function() {
-		drawSetArea();
+		drawLayoutTemplate();
 	};
 	
 	return this;

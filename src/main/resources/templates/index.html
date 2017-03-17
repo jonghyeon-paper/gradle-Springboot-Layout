@@ -18,26 +18,39 @@
 			</div> 
 		</div>
 		
+		<div id="layoutTemplate">
+			<div style="width:96%; height:500px; display:none;" id='layoutStyle1'>
+				<div style="margin: 5px; border: solid 1px black; width: 100%; height:100%" id="section1"></div>
+			</div>
+			
+			<div style="width:100%; height:500px; display:none;" id='layoutStyle2'>
+				<div style="float:left; margin: 5px; border: solid 1px black; width: 48%; height:100%" id="section1"></div>
+				<div style="float:left; margin: 5px; border: solid 1px black; width: 48%; height:100%" id="section2"></div>
+			</div>
+		</div>
+		
 		<script>
-			var a = new LayoutTemplate();
-			a.setTargetId('contentsArea');
-			a.setContentArray([{
-				title: '1cont',
-				data: {}
+			var temp = new LayoutTemplate();
+			temp.setTargetId('contentsArea');
+			temp.setLayoutArray(['layoutStyle1', 'layoutStyle2']);
+			temp.setContentArray([{
+				title: 'naver',
+				data: {url: 'https://naver.com', callFunction: 'n'}
 			},
 			{
-				title: '2cont',
-				data: {}
+				title: 'daum',
+				data: {url: 'http://daum.net', callFunction: '2'}
 			},
 			{
-				title: '3cont',
-				data: {}
+				title: 'google',
+				data: {url: 'https://google.com', callFunction: 'w'}
 			},
 			{
-				title: '4cont',
-				data: {}
+				title: 'ncsoft',
+				data: {url: 'http://ncsoft.com/', callFunction: '#'}
 			}]);
-			a.draw();
+			
+			temp.draw();
 		</script>
 	</body>
 </html>
