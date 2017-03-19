@@ -83,14 +83,14 @@ var LayoutTemplate = function() {
 		// 사용자정의 데이터 저장
 		saveCustomizeData();
 		
-		// 사용자정의 데이터 저장
+		// 사용자정의 함수로 데이터 저장
 		if (saveFunction !== null) {
-			saveFunction.call();
+			saveFunction.call(this, layoutTemplateInformation);
 		}
 		
-		// 사용자정의 데이터 후처리
+		// 사용자정의 함수로 데이터 후처리
 		if (afterSaveFunction !== null) {
-			afterSaveFunction.call();
+			afterSaveFunction.call(this, layoutTemplateInformation);
 		}
 	});
 	
@@ -104,8 +104,8 @@ var LayoutTemplate = function() {
 		
 		var $layoutUl = $('<ul>');
 		for (var i = 0; i < layoutArray.length; i++) {
-			$layoutUl.append($('<li>').html(layoutArray[i])
-			                          .attr({'data-layout-id' : layoutArray[i]}) // 데이터 가시성을 위해 속성으로 추가
+			$layoutUl.append($('<li>').html(layoutArray[i].domId)
+			                          .data('data', layoutArray[i]) // json 데이터(데이터를 보려면 string으로 변환해서 속성으로 추가하면 됨)
 			                );
 		}
 		$layoutArea.append($layoutUl);
@@ -118,17 +118,18 @@ var LayoutTemplate = function() {
 				
 				$(this).addClass('on').css({'background-color' : 'yellow'});
 				
-				applyLayout($(this).data('layoutId'));
+				applyLayout($(this).data('data'));
 			}
 		});
 	};
 	
-	// 레이아웃 div id로 레이아웃 dom을 찾아 view영역에 적용한다. 
-	var applyLayout = function(id) {
+	// 레이아웃 dom을 view영역에 적용한다.
+	var applyLayout = function(data) {
+		// data는 json객체
 		resetViewArea();
 		resetDataArea();
 		
-		var $layoutDom = $('#layoutTemplate > #' +id).clone().show().appendTo($viewArea);
+		var $layoutDom = data.dom.clone().show().appendTo($viewArea);
 		
 		$layoutDom.find('div[id^=section]').sortable();
 		
@@ -223,25 +224,7 @@ var LayoutTemplate = function() {
 	var layoutArray = [];
 	var contentArray = [];
 	var saveFunction = null;
-	var afterSaveFunction = function() {
-		var layoutData = layoutTemplateInformation.layout;
-		
-		var $layoutDom = $('#layoutTemplate > #' +layoutData.styleId).clone();
-		
-		var sectionArray = layoutData.section;
-		for (var i = 0; i < sectionArray.length; i++) {
-			var $section = $layoutDom.find('#' + sectionArray[i].sectionId)
-			
-			var contentArray = sectionArray[i].contentList;
-			for (var j = 0; j < contentArray.length; j ++) {
-				var $div = $('<div>').append($('<div>').html(contentArray[j].title))
-				                     .append($('<iframe></iframe>').attr({src : contentArray[j].data.url}))
-				                     .appendTo($section);
-			}
-		}
-		
-		$layoutDom.appendTo($('#contentsArea > #realArea')).show();
-	};
+	var afterSaveFunction = null;
 	
 	var layoutTemplateInformation = {};
 	
@@ -273,8 +256,15 @@ var LayoutTemplate = function() {
 		return layoutTemplateInformation;
 	};
 	
-	this.draw = function() {
+	this.draw = function(data) {
 		drawLayoutTemplate();
+		if (data !== null && data !== undefined && data !== '') {
+			layoutTemplateInformation = data;
+			// 사용자정의 함수로 데이터 후처리
+			if (afterSaveFunction !== null) {
+				afterSaveFunction.call(this, layoutTemplateInformation);
+			}
+		}
 	};
 	
 	return this;
