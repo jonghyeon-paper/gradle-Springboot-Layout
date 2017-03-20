@@ -8,19 +8,23 @@ $(function(){
 	}];
 	var contentData = [{
 		title: 'naver',
-		data: {url: 'https://naver.com', callFunction: 'n'}
+		url: 'https://naver.com',
+		callFunction: 'n'
 	},
 	{
 		title: 'daum',
-		data: {url: 'http://daum.net', callFunction: '2'}
+		url: 'http://daum.net',
+		callFunction: '2'
 	},
 	{
 		title: 'google',
-		data: {url: 'https://google.com', callFunction: 'w'}
+		url: 'https://google.com',
+		callFunction: 'w'
 	},
 	{
 		title: 'ncsoft',
-		data: {url: 'http://ncsoft.com/', callFunction: '#'}
+		url: 'http://ncsoft.com/',
+		callFunction: '#'
 	}];
 	var customAfterSave = function(data) {
 		var layoutInfo = data.layout;
@@ -34,6 +38,10 @@ $(function(){
 			}
 		}
 		
+		if ($layoutDom === null) {
+			return;
+		}
+		
 		var sectionArray = layoutInfo.section;
 		for (var sIndex in sectionArray) {
 			var sectionItem = sectionArray[sIndex];
@@ -44,7 +52,7 @@ $(function(){
 			for (var cIndex in contentArray) {
 				var contentItem = contentArray[cIndex];
 				var $div = $('<div>').append($('<div>').html(contentItem.title))
-				                     .append($('<iframe></iframe>').attr({src : contentItem.data.url}))
+				                     .append($('<iframe></iframe>').attr({src : contentItem.url}))
 				                     .appendTo($section);
 			}
 		}

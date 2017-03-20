@@ -105,6 +105,7 @@ var LayoutTemplate = function() {
 		var $layoutUl = $('<ul>');
 		for (var i = 0; i < layoutArray.length; i++) {
 			$layoutUl.append($('<li>').html(layoutArray[i].domId)
+			                          .attr({id: layoutArray[i].domId})
 			                          .data('data', layoutArray[i]) // json 데이터(데이터를 보려면 string으로 변환해서 속성으로 추가하면 됨)
 			                );
 		}
@@ -153,6 +154,7 @@ var LayoutTemplate = function() {
 		var $contentUl = $('<ul>');
 		for (var i = 0; i < contentArray.length; i++) {
 			$contentUl.append($('<li>').html(contentArray[i].title)
+			                           .attr({id: contentArray[i].title})
 			                           .data('data', contentArray[i]) // json 데이터(데이터를 보려면 string으로 변환해서 속성으로 추가하면 됨)
 			                 );
 		}
@@ -215,7 +217,38 @@ var LayoutTemplate = function() {
 		$('#' + targetId).append($realArea)
 		                 .append($viewArea)
 		                 .append($customizeArea);
-	}
+	};
+	
+	var drawDataLayoutTemplate = function() {
+		
+		var layoutInfo = layoutTemplateInformation.layout;
+		
+		// (뷰영역 적용)레이아웃 선택
+		$layoutArea.find('ul > li[id=' + layoutInfo.styleId + ']').click();
+		
+		var sectionArray = layoutInfo.section;
+		for (var sIndex in sectionArray) {
+			var sectionItem = sectionArray[sIndex];
+			
+			// (뷰영역 적용)레이아웃 > 섹션 선택
+			$viewArea.find('div[id=' + sectionItem.sectionId + ']').click();
+			
+			var contentArray = sectionItem.contentList;
+			for (var cIndex in contentArray) {
+				var contentItem = contentArray[cIndex];
+				
+				// (뷰영역 적용)레이아웃 > 섹션 > 컨텐츠 선택
+				$dataArea.find('ul > li[id=' + contentItem.title + ']').click();
+				// (뷰영역 적용)레이아웃 > 섹션 > 컨텐츠 > 컨텐츠 적용
+				$customizeArea.find('#insertbutton').click();
+			}
+		}
+		
+		// 사용자정의 함수로 데이터 후처리
+		if (afterSaveFunction !== null) {
+			afterSaveFunction.call(this, layoutTemplateInformation);
+		}
+	};
 	
 	/* ********************************* process ******************************** */
 	
@@ -258,14 +291,43 @@ var LayoutTemplate = function() {
 	
 	this.draw = function(data) {
 		drawLayoutTemplate();
+		
 		if (data !== null && data !== undefined && data !== '') {
-			layoutTemplateInformation = data;
-			// 사용자정의 함수로 데이터 후처리
-			if (afterSaveFunction !== null) {
-				afterSaveFunction.call(this, layoutTemplateInformation);
-			}
+			layoutTemplateInformation = JSON.parse(data);
+			drawDataLayoutTemplate();
 		}
 	};
 	
 	return this;
 };
+
+/////////////////////////////////////////////////////////////////////////////
+
+function getAllCookies() {
+	var result = '';
+	var cookies = document.cookie.split(';');
+	for (var i = 0; i < cookies.length; i++) {
+		result += cookies[i] + '<br>';
+	}
+	return result;
+}
+
+function getCookie(name) {
+	var result = '';
+	var cookies = document.cookie.split(';');
+	for (var i = 0; i < cookies.length; i++) {
+		if (cookies[i].indexOf(name) > -1) {
+			return cookies[i].replace(name + '=', '');
+		}
+	}
+	return result;
+}
+
+var setCookie = function(name, value, expiredays) {
+	var todayDate = new Date();
+	if (expiredays == null) {
+		expiredays = 30;
+	}
+	todayDate.setDate(todayDate.getDate() + expiredays);
+	document.cookie = name + '=' + value + '; path=/; expires=' + todayDate.toGMTString() + ';';
+}
