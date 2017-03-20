@@ -6,27 +6,24 @@ $(function(){
 	{
 		domId: 'layoutStyle2',
 		dom: $('#layoutStyle2').clone()
-	}];
-	var contentData = [{
-		title: 'naver',
-		url: 'https://naver.com',
-		callFunction: 'n'
 	},
 	{
+		domId: 'layoutStyle3',
+		dom: $('#layoutStyle3').clone()
+	}];
+	var contentData = [{
 		title: 'daum',
 		url: 'http://daum.net',
 		callFunction: '2'
-	},
-	{
-		title: 'google',
-		url: 'https://google.com',
-		callFunction: 'w'
 	},
 	{
 		title: 'ncsoft',
 		url: 'http://ncsoft.com/',
 		callFunction: '#'
 	}];
+	var customSave = function(data) {
+		setCookie('page2', JSON.stringify(data), 1);
+	};
 	var customAfterSave = function(data) {
 		var layoutInfo = data.layout;
 		
@@ -65,6 +62,7 @@ $(function(){
 	temp.setTargetId('baseArea');
 	temp.setLayoutArray(layoutData);
 	temp.setContentArray(contentData);
+	temp.setSave(customSave);
 	temp.setAfterSave(customAfterSave);
-	temp.draw();
+	temp.draw(getCookie('page2'));
 });

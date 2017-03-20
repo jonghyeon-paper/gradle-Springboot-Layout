@@ -27,7 +27,7 @@ $(function(){
 		callFunction: '#'
 	}];
 	var customSave = function(data) {
-		setCookie('contentsCookie', JSON.stringify(data), 1);
+		setCookie('page1', JSON.stringify(data), 1);
 	};
 	var customAfterSave = function(data) {
 		var layoutInfo = data.layout;
@@ -55,7 +55,7 @@ $(function(){
 			for (var cIndex in contentArray) {
 				var contentItem = contentArray[cIndex];
 				var $div = $('<div>').append($('<div>').html(contentItem.title))
-				                     .append($('<iframe></iframe>').attr({src : contentItem.url}))
+				                     .append($('<iframe></iframe>').attr({src : contentItem.url, width: '400', height: '300'}))
 				                     .appendTo($section);
 			}
 		}
@@ -69,5 +69,5 @@ $(function(){
 	temp.setContentArray(contentData);
 	temp.setSave(customSave);
 	temp.setAfterSave(customAfterSave);
-	temp.draw(getCookie('contentsCookie'));
+	temp.draw(getCookie('page1'));
 });
